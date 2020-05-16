@@ -1,0 +1,10 @@
+Oct 08, 2017 4:33:52 PM DriverClass main
+INFO: Starting Log
+Oct 08, 2017 4:34:17 PM Util copy
+INFO: 
+java.io.IOException: The process cannot access the file because another process has locked a portion of the file
+
+Oct 08, 2017 4:34:23 PM mailSender email
+INFO: message sent....
+Oct 08, 2017 4:34:23 PM DriverClass main
+INFO: Ending Log
