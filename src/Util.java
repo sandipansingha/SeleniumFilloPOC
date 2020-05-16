@@ -9,10 +9,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -40,17 +42,17 @@ public class Util {
 /**
  * @Description This method sets the WebDriver properties as per target Browser.
  * The [driverType] and [driverPath] are stored in the config.properties file.
- * @param driver
- * @param prop
- * @return
+ * @param driver is the webdriver object
+ * @param prop is the property object
+ * @return returns loaded driver object
  */
 	public static WebDriver setBrowser(WebDriver driver,Properties prop)
 	{
-					
-		/**
+
+		/*
 		 * This code sets the selenium webdriver with desired browser
-		 * properties. 
-		 */	
+		 * properties.
+		 */
 		//driverType=prop.getProperty("driverType");
 		driverType=DriverClass.browserFlag;
 		driverPath=prop.getProperty("driverPath");		
@@ -59,6 +61,8 @@ public class Util {
 		{
 			case "chrome":
 				System.setProperty("webdriver."+driverType+".driver",driverPath);
+				//setup the chromedriver using WebDriverManager
+				WebDriverManager.chromedriver().setup();
 				driver = new ChromeDriver();
 				driver.manage().window().maximize();
 				systemBrowserPath=prop.getProperty("browserPath");
@@ -87,13 +91,13 @@ public class Util {
 		else
 			DriverClass.test.log(LogStatus.ERROR, "Browser Launch", " - Browser launch failed");
 		//Initializing wait object with 10 seconds as parameter.
-		wait=new WebDriverWait(driver, Integer.parseInt(prop.getProperty("customWait")));
+		wait=new WebDriverWait(Objects.requireNonNull(driver), Integer.parseInt(prop.getProperty("customWait")));
 		return driver;
 	}	
 /**
  * @Description This method closes the WebDriver and releases resources.
- * @param driver
- * @param extent
+ * @param driver is closed and quit
+ * @param extent flushes the report
  */
 	public static void killMethod(WebDriver driver,ExtentReports extent )
 	{
@@ -105,16 +109,16 @@ public class Util {
 		}catch (Exception e1) {			
 			System.out.println(e1.getMessage());
 			DriverClass.test.log(LogStatus.ERROR, "Test Closure",
-			"Unable to release resources due to:"+Util.textWrap(e1.toString(), 
+			"Unable to release resources due to:"+Util.textWrap(e1.toString(),
 			"darkredbold")+
-			"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName().toString()+
-			"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName().toString());
+			"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName()+
+			"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName());
 		}
 	}	
 /**
  * @Description This method wraps a string according to necessary style formatting
- * @param input
- * @param style
+ * @param input takes unformatted text
+ * @param style takes style for formatting
  * @return output (string)
  */
 	public static String textWrap(String input,String style)
@@ -126,7 +130,10 @@ public class Util {
 			output="</br><b><font color='#bc104a'>"+input+"</font></b>";
 		case "redbold":
 			output="</br><b><font color='red'>"+input+"</font></b>";
-		}			
+			break;
+			default:
+				throw new IllegalStateException("Unexpected value: " + style.toLowerCase());
+		}
 		return output;
 	}
 /**
@@ -149,7 +156,7 @@ public class Util {
 	}
 /**
  * @Description Copy reports to archive path mentioned in config property "ReportArchive"
- * @param prop
+ * @param prop property object
  */
 	public static void archiveReport(Properties prop)
 	{			
@@ -169,7 +176,7 @@ public class Util {
 	}
 /**
  * @Description This method creates a Winzip archive of the Test Report
- * @param prop
+ * @param prop property object
  */
 	public static boolean CreateZip(Properties prop)
 	{
@@ -185,7 +192,7 @@ public class Util {
 		        srcDirectory = new File(ReportManager.RootPath+ReportManager.testRunPath);
 	               
 	                URI base = srcDirectory.toURI();
-	                Deque<File> queue = new LinkedList<File>();
+	                Deque<File> queue = new LinkedList<>();
 	                queue.push(srcDirectory);
 	                OutputStream out = new FileOutputStream(zipfile);
 	                Closeable res = out;
@@ -209,7 +216,7 @@ public class Util {
 	                  }
 	                } finally {
 	                  res.close();
-	                  if(archiveFlag==false)
+	                  if(!archiveFlag)
 	                	  zipdir.delete();
 	                }
 	          return true;
@@ -221,7 +228,7 @@ public class Util {
 		}
 		return false;
 	} 
-/**
+/*
  * @Description This method is a helper to CreateZip method to copy data.
  * It copies from data from inputstream to outputstream
  * @param in
@@ -242,10 +249,8 @@ public class Util {
 			  out.write(buffer, 0, readCount);
 			}
 			in.close();
-		} catch (FileNotFoundException e) {
-			ReportManager.logger.info("\n"+e.toString()+"\n"); 
-		} catch (IOException e) {
-			ReportManager.logger.info("\n"+e.toString()+"\n"); 
-		} 
-	  }
+		} catch (Exception e) {
+			ReportManager.logger.info("\n"+e.toString()+"\n");
+		}
+	}
 }
