@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 public class Validation {
 	
 //----------------Series of overload methods that only validate condition--------------------
-/**
+/*
  * @Description This method is the base method for general validation.
  * This method compares the text associated to an element with the passed string
  * @param driver
@@ -46,7 +46,7 @@ public class Validation {
 	public static Boolean validate(WebElement element, String strToCheck,String flag)
 	{
 		if(flag.equalsIgnoreCase("contains"))
-			if(element.toString().toLowerCase().contains(strToCheck))
+			if(element.getText().toLowerCase().contains(strToCheck))
 				return true;
 		return false;
 	}

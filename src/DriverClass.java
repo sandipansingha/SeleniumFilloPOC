@@ -1,19 +1,16 @@
 /**
  * 
  */
-import java.io.FileInputStream;
-import java.sql.ResultSet;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
 import com.codoid.products.exception.FilloException;
 import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
+import org.openqa.selenium.WebDriver;
+
+import java.io.FileInputStream;
+import java.sql.ResultSet;
+import java.util.Properties;
 
 
 
@@ -46,8 +43,7 @@ public class DriverClass {
  * @Description This is the main method that calls drives the functional flow
  * @param args
  */
-	public static void main(String[] args) 
-	{			
+	public static void main(String[] args) throws Exception {
 		// Instantiating Extent Reports class
 		extent = ReportManager.SetReport(extent);
 		
@@ -119,6 +115,13 @@ public class DriverClass {
 						// Search and check search results page
 						test = extent.startTest(scenarioName);
 						Scenarios.search(driver, test, prop, screenFlag);
+						extent.endTest(test);
+						break;
+					case "Play":
+						// [Scenario3]
+						// Play Youtube video till it ends
+						test = extent.startTest(scenarioName);
+						Scenarios.play(driver, test, prop, screenFlag);
 						extent.endTest(test);
 						break;
 				}

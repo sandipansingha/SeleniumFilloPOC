@@ -1,25 +1,23 @@
 //import java.sql.Connection;
-import java.sql.DriverManager;
+import com.codoid.products.fillo.Connection;
+import com.codoid.products.fillo.Fillo;
+import com.codoid.products.fillo.Recordset;
+import com.relevantcodes.extentreports.ExtentReports;
+import com.relevantcodes.extentreports.ExtentTest;
+
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
 
-import com.codoid.products.fillo.Fillo;
-import com.codoid.products.fillo.Recordset;
-import com.codoid.products.fillo.Connection;
-import com.relevantcodes.extentreports.ExtentReports;
-import com.relevantcodes.extentreports.ExtentTest;
-import com.relevantcodes.extentreports.LogStatus;
 
 
-
-/**
-* @Description This class establishes connection between framework and external data source
-* @author sandipan.singha	
-* @Date 29.06.2016
-* @param input parameter = property object
-* @param output parameter = string
-*/
+/*
+ * @Description This class establishes connection between framework and external data source
+ * @author sandipan.singha
+ * @Date 29.06.2016
+ * @param input parameter = property object
+ * @param output parameter = string
+ */
 public class ConnectionClass {
 
 	//Declaration of necessary objects for connection 	
@@ -52,18 +50,18 @@ public class ConnectionClass {
 		        + "READONLY=false";
 		    
 		    *//**
-		     * Opening Data connection using connection string and 
-		     * linking the connection to connection object con.
-		     *//*
+	 * Opening Data connection using connection string and
+	 * linking the connection to connection object con.
+	 *//*
 		    con = DriverManager.getConnection(myDB);
 		    
 		    //Statement object to send sql statement to datasource
 		    st = con.createStatement();
 		    
 		    *//**
-		     * ResultSet object rs storing the result of the executed
-		     * query in the DataSource.
-		     *//*
+	 * ResultSet object rs storing the result of the executed
+	 * query in the DataSource.
+	 *//*
 		    if(Sheetname.equalsIgnoreCase("Actions"))
 		    	rs = st.executeQuery("Select * from ["+Sheetname+"$] where ExecuteFlag='yes'");
 		    else if(Sheetname.equalsIgnoreCase("AppData"))
@@ -79,29 +77,36 @@ public class ConnectionClass {
 	    }
 	    return rs;
 	  }	*/
-	
-	public static Recordset filoDataConnect(Properties prop, String Sheetname)
-	{
+
+	public static Recordset filoDataConnect(Properties prop, String Sheetname) throws Exception {
 		fillo=new Fillo();
-		
-		try
-		{
-			//Declaration of connection bridge
-			
-			filloCon=fillo.getConnection("./"+prop.getProperty("dataSource"));
-			/**
-		     * ResultSet object rs storing the result of the executed
-		     * query in the DataSource.
-		     */
-			if(Sheetname.equalsIgnoreCase("Actions"))
-		    	rcs = filloCon.executeQuery("Select * from "+Sheetname+" where ExecuteFlag='yes'");
-		    else if(Sheetname.equalsIgnoreCase("AppData"))
-		    	rcs = filloCon.executeQuery("Select * from "+Sheetname+" where TestName='"+prop.getProperty("releaseName")+"'");
-		}
-		catch(Exception e)
-		{}
+
+		//Declaration of connection bridge
+		filloCon=fillo.getConnection("./"+prop.getProperty("dataSource"));
+		/**
+		 * ResultSet object rs storing the result of the executed
+		 * query in the DataSource.
+		 */
+		if(Sheetname.equalsIgnoreCase("Actions"))
+			rcs = filloCon.executeQuery("Select * from "+Sheetname+" where ExecuteFlag='yes'");
+		else if(Sheetname.equalsIgnoreCase("AppData"))
+			rcs = filloCon.executeQuery("Select * from "+Sheetname+" where TestName='"+prop.getProperty("releaseName")+"'");
 		return rcs;
 	}
+	public static String getScenarioData(Properties prop, String queryFieldName, String keyFieldValue) throws Exception {
+		String data="";
+		fillo=new Fillo();
+
+		//Declaration of connection bridge
+		filloCon=fillo.getConnection("./"+prop.getProperty("dataSource"));
+		/**
+		 * ResultSet object rs storing the result of the executed
+		 * query in the DataSource.
+		 */
+		rcs = filloCon.executeQuery("Select "+queryFieldName+" from Actions where ScenarioName = '"+keyFieldValue+"'");
+		return data;
+	}
+
 }
 
 	
