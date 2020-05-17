@@ -132,29 +132,28 @@ public class DriverClass {
 			"darkredbold")+
 			"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName().toString()+
 			"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName().toString());
-		}		
+			//Calls the kill method to close browser and quit driver.
+			Util.killMethod(driver,extent,test);
+		}	finally {
+			//Calls the kill method to close browser and quit driver.
+			Util.killMethod(driver,extent,test);
+			//Generate the report and release reporting resources
+			ReportManager.reportGen(extent);
+			//Copy reports to archive path mentioned in config property "ReportArchive"
+			Util.archiveReport(prop);
+			//Launch Report in browser
+			Util.launchReport();
+			//Create Report Zip Archive
+			zipArchiveFlag=Util.CreateZip(prop);
+			//Send email with zip archive of report
+			if(zipArchiveFlag==true&&prop.getProperty("sendMail").equalsIgnoreCase("yes"))
+				mailSender.email(prop);
+			//Instantiating Generic System Log
+			ReportManager.logger.info("Ending Log");
+			ReportManager.fh.close();
+		}
 		//<-----------Functional flow ends here---------->
-		
-		//Calls the kill method to close browser and quit driver.
-		test=extent.startTest("<b>Test Closure</b>");
-		Util.killMethod(driver,extent); 
-		test.log(LogStatus.INFO, "Resource Release", " - Resources released successfully");
-		extent.endTest(test);
-		
-		//Generate the report and release reporting resources
-		ReportManager.reportGen(extent);		
-		//Copy reports to archive path mentioned in config property "ReportArchive"
-		Util.archiveReport(prop);
-		//Launch Report in browser
-		Util.launchReport();
-		//Create Report Zip Archive		
-		zipArchiveFlag=Util.CreateZip(prop);
-		//Send email with zip archive of report
-		if(zipArchiveFlag==true&&prop.getProperty("sendMail").equalsIgnoreCase("yes"));
-			mailSender.email(prop);
-		//Instantiating Generic System Log	
-		ReportManager.logger.info("Ending Log"); 
-		ReportManager.fh.close();
+
 	}
 
 }

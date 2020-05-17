@@ -2,8 +2,6 @@ import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.Properties;
 
@@ -57,6 +55,7 @@ public class Scenarios {
 										CaptureScreen(driver,
 												Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 				}
+				break;
 			case "ToBeAdded":
 				if (Validation.validate(PageObjectClass.btnSignIn(driver))) {
 					test.log(LogStatus.PASS, "Navigate", "Navigate to URL");
@@ -73,6 +72,7 @@ public class Scenarios {
 										CaptureScreen(driver,
 												Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 				}
+				break;
 		}
 	}
 	/**
@@ -107,26 +107,45 @@ public class Scenarios {
 	}
 	public static void play(WebDriver driver, ExtentTest test, Properties prop, String screenFlag)
 	{
-		double currentSeekTime=0.0;
-		double totalDurationTime=0.0;
-		new WebDriverWait(driver,5)
-				.until(ExpectedConditions
-						.elementToBeClickable(YouTubePageObjects.btnPlay));
-		YouTubePageObjects.btnPlay.click();
+		YouTubePageObjects ytp=new YouTubePageObjects(driver);
+		String currentSeekTime = null;
+		String totalDurationTime = null;
+		if(!Validation.isClickable(ytp.btnPause,driver))
+			if(Validation.isClickable(ytp.btnPlay,driver))
+				ytp.btnPlay.click();
+		if(Validation.isClickable(ytp.btnMute,driver))
+			ytp.btnMute.click();
 		do{
 			try {
-				currentSeekTime=Double.parseDouble(YouTubePageObjects.txtCurrentSeekTime.getText());
-				totalDurationTime=Double.parseDouble(YouTubePageObjects.txtTotalDurationTime.getText());
-				driver.manage().timeouts().wait(5000);
+				if(ytp.txtCurrentSeekTime.isEnabled()) {
+					currentSeekTime = ytp.txtCurrentSeekTime.getText().trim();
+					totalDurationTime = ytp.txtTotalDurationTime.getText();
+					Thread.sleep(5000);
+					if(Integer.parseInt(currentSeekTime.split(":")[0])>=1) {
+						test.log(LogStatus.PASS, "Play", "Play video");
+						if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
+							test.log(LogStatus.INFO, "Home Screen",
+									test.addScreenCapture(ReportManager.
+											CaptureScreen(driver,
+													Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+					break;
+					}
+				}
 			} catch (Exception e) {
+				test.log(LogStatus.FAIL, "Play", "Play video");
+				if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
+					test.log(LogStatus.INFO, "Home Screen",
+							test.addScreenCapture(ReportManager.
+									CaptureScreen(driver,
+											Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 				System.out.println(e.getMessage());
-				DriverClass.test.log(LogStatus.ERROR, "Test Closure",
-						"Unable to release resources due to:"+Util.textWrap(e.toString(),
+				DriverClass.test.log(LogStatus.ERROR, "Scenario Execution",
+						"Play function failed due to:"+Util.textWrap(e.toString(),
 								"darkredbold")+
 								"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName()+
 								"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName());
 			}
 		}
-		while(currentSeekTime!=totalDurationTime);
+		while(!currentSeekTime.equals(totalDurationTime));
 	}
 }

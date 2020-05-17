@@ -1,19 +1,6 @@
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
+import com.relevantcodes.extentreports.ExtentReports;
+import com.relevantcodes.extentreports.ExtentTest;
+import com.relevantcodes.extentreports.LogStatus;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
@@ -21,9 +8,14 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.relevantcodes.extentreports.ExtentReports;
-import com.relevantcodes.extentreports.ExtentTest;
-import com.relevantcodes.extentreports.LogStatus;
+import java.io.*;
+import java.net.URI;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 /**
@@ -35,17 +27,17 @@ public class Util {
 	public static String driverType;
 	public static String driverPath;
 	public static String systemBrowserPath;
-	
-	public static boolean archiveFlag;	
+
+	public static boolean archiveFlag;
 	public static WebDriverWait wait;
-		
-/**
- * @Description This method sets the WebDriver properties as per target Browser.
- * The [driverType] and [driverPath] are stored in the config.properties file.
- * @param driver is the webdriver object
- * @param prop is the property object
- * @return returns loaded driver object
- */
+
+	/**
+	 * @Description This method sets the WebDriver properties as per target Browser.
+	 * The [driverType] and [driverPath] are stored in the config.properties file.
+	 * @param driver is the webdriver object
+	 * @param prop is the property object
+	 * @return returns loaded driver object
+	 */
 	public static WebDriver setBrowser(WebDriver driver,Properties prop)
 	{
 
@@ -55,8 +47,8 @@ public class Util {
 		 */
 		//driverType=prop.getProperty("driverType");
 		driverType=DriverClass.browserFlag;
-		driverPath=prop.getProperty("driverPath");		
-		
+		driverPath=prop.getProperty("driverPath");
+
 		switch(prop.getProperty("browserType").toLowerCase())
 		{
 			case "chrome":
@@ -93,52 +85,56 @@ public class Util {
 		//Initializing wait object with 10 seconds as parameter.
 		wait=new WebDriverWait(Objects.requireNonNull(driver), Integer.parseInt(prop.getProperty("customWait")));
 		return driver;
-	}	
-/**
- * @Description This method closes the WebDriver and releases resources.
- * @param driver is closed and quit
- * @param extent flushes the report
- */
-	public static void killMethod(WebDriver driver,ExtentReports extent )
+	}
+	/**
+	 * @Description This method closes the WebDriver and releases resources.
+	 * @param driver is closed and quit
+	 * @param extent flushes the report
+	 */
+	public static void killMethod(WebDriver driver,ExtentReports extent, ExtentTest test )
 	{
-	try 
-		{			
+		test=extent.startTest("<b>Test Closure</b>");
+		try
+		{
 			driver.close();
 			driver.quit();
-			ConnectionClass.con.close();			
-		}catch (Exception e1) {			
+			ConnectionClass.con.close();
+			test.log(LogStatus.INFO, "Resource Release", " - Resources released successfully");
+			extent.endTest(test);
+		}catch (Exception e1) {
 			System.out.println(e1.getMessage());
 			DriverClass.test.log(LogStatus.ERROR, "Test Closure",
-			"Unable to release resources due to:"+Util.textWrap(e1.toString(),
-			"darkredbold")+
-			"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName()+
-			"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName());
+					"Unable to release resources due to:"+Util.textWrap(e1.toString(),
+							"darkredbold")+
+							"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName()+
+							"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName());
+			extent.endTest(test);
 		}
-	}	
-/**
- * @Description This method wraps a string according to necessary style formatting
- * @param input takes unformatted text
- * @param style takes style for formatting
- * @return output (string)
- */
+	}
+	/**
+	 * @Description This method wraps a string according to necessary style formatting
+	 * @param input takes unformatted text
+	 * @param style takes style for formatting
+	 * @return output (string)
+	 */
 	public static String textWrap(String input,String style)
 	{
 		String output="";
 		switch(style.toLowerCase())
 		{
-		case "darkredbold":
-			output="</br><b><font color='#bc104a'>"+input+"</font></b>";
-		case "redbold":
-			output="</br><b><font color='red'>"+input+"</font></b>";
-			break;
+			case "darkredbold":
+				output="</br><b><font color='#bc104a'>"+input+"</font></b>";
+			case "redbold":
+				output="</br><b><font color='red'>"+input+"</font></b>";
+				break;
 			default:
 				throw new IllegalStateException("Unexpected value: " + style.toLowerCase());
 		}
 		return output;
 	}
-/**
- * @Description This method launches the Test Execution in Browser
- */
+	/**
+	 * @Description This method launches the Test Execution in Browser
+	 */
 	public static void launchReport()
 	{
 		//Launch Report in browser
@@ -151,102 +147,102 @@ public class Util {
 
 		} catch (Exception e)
 		{
-			ReportManager.logger.info("\n"+e.toString()+"\n"); 
-		}	
+			ReportManager.logger.info("\n"+e.toString()+"\n");
+		}
 	}
-/**
- * @Description Copy reports to archive path mentioned in config property "ReportArchive"
- * @param prop property object
- */
+	/**
+	 * @Description Copy reports to archive path mentioned in config property "ReportArchive"
+	 * @param prop property object
+	 */
 	public static void archiveReport(Properties prop)
-	{			
+	{
 		try
 		{
-			if(!(prop.getProperty("ReportArchive").isEmpty())&&!(prop.getProperty("ReportArchive").equalsIgnoreCase("na")))			
-				{
-					FileUtils.copyDirectory(new File(ReportManager.RootPath+ReportManager.testRunPath), 
+			if(!(prop.getProperty("ReportArchive").isEmpty())&&!(prop.getProperty("ReportArchive").equalsIgnoreCase("na")))
+			{
+				FileUtils.copyDirectory(new File(ReportManager.RootPath+ReportManager.testRunPath),
 						new File(prop.getProperty("ReportArchive")+ReportManager.testRunPath));
-					archiveFlag=true;
-				}
+				archiveFlag=true;
+			}
 		}catch(Exception e)
 		{
-			ReportManager.logger.info("\n"+e.toString()+"\n"); 
+			ReportManager.logger.info("\n"+e.toString()+"\n");
 			archiveFlag=false;
 		}
 	}
-/**
- * @Description This method creates a Winzip archive of the Test Report
- * @param prop property object
- */
+	/**
+	 * @Description This method creates a Winzip archive of the Test Report
+	 * @param prop property object
+	 */
 	public static boolean CreateZip(Properties prop)
 	{
 		File srcDirectory, zipfile, zipdir;
 		if(!(prop.getProperty("ZipArchive").isEmpty())&&!(prop.getProperty("ZipArchive").equalsIgnoreCase("na")))
 		{
 			try
-	        {
+			{
 				//Creates new zip archive directory
-		    	zipdir = new File(prop.getProperty("ZipArchive")+ReportManager.zipName);
-		    	zipdir.mkdirs();
+				zipdir = new File(prop.getProperty("ZipArchive")+ReportManager.zipName);
+				zipdir.mkdirs();
 				zipfile = new File(prop.getProperty("ZipArchive")+ReportManager.zipName+".zip");
-		        srcDirectory = new File(ReportManager.RootPath+ReportManager.testRunPath);
-	               
-	                URI base = srcDirectory.toURI();
-	                Deque<File> queue = new LinkedList<>();
-	                queue.push(srcDirectory);
-	                OutputStream out = new FileOutputStream(zipfile);
-	                Closeable res = out;
-	                try {
-	                  ZipOutputStream zout = new ZipOutputStream(out);
-	                  res = zout;
-	                  while (!queue.isEmpty()) {
-	                    srcDirectory = queue.pop();
-	                    for (File child : srcDirectory.listFiles()) {
-	                      String name = base.relativize(child.toURI()).getPath();
-	                      if (child.isDirectory()) {
-	                        queue.push(child);
-	                        name = name.endsWith("/") ? name : name + "/";
-	                        zout.putNextEntry(new ZipEntry(name));
-	                      } else {
-	                        zout.putNextEntry(new ZipEntry(name));
-	                        copy(child, zout);
-	                        zout.closeEntry();
-	                      }
-	                    }
-	                  }
-	                } finally {
-	                  res.close();
-	                  if(!archiveFlag)
-	                	  zipdir.delete();
-	                }
-	          return true;
-	        }
-	        catch(IOException ioe)
-	        {
-	        	ReportManager.logger.info("\n"+ioe.toString()+"\n"); 
-	        }
+				srcDirectory = new File(ReportManager.RootPath+ReportManager.testRunPath);
+
+				URI base = srcDirectory.toURI();
+				Deque<File> queue = new LinkedList<>();
+				queue.push(srcDirectory);
+				OutputStream out = new FileOutputStream(zipfile);
+				Closeable res = out;
+				try {
+					ZipOutputStream zout = new ZipOutputStream(out);
+					res = zout;
+					while (!queue.isEmpty()) {
+						srcDirectory = queue.pop();
+						for (File child : srcDirectory.listFiles()) {
+							String name = base.relativize(child.toURI()).getPath();
+							if (child.isDirectory()) {
+								queue.push(child);
+								name = name.endsWith("/") ? name : name + "/";
+								zout.putNextEntry(new ZipEntry(name));
+							} else {
+								zout.putNextEntry(new ZipEntry(name));
+								copy(child, zout);
+								zout.closeEntry();
+							}
+						}
+					}
+				} finally {
+					res.close();
+					if(!archiveFlag)
+						zipdir.delete();
+				}
+				return true;
+			}
+			catch(IOException ioe)
+			{
+				ReportManager.logger.info("\n"+ioe.toString()+"\n");
+			}
 		}
 		return false;
-	} 
-/*
- * @Description This method is a helper to CreateZip method to copy data.
- * It copies from data from inputstream to outputstream
- * @param in
- * @param out
- */
-	private static void copy(File file, OutputStream out) 
+	}
+	/*
+	 * @Description This method is a helper to CreateZip method to copy data.
+	 * It copies from data from inputstream to outputstream
+	 * @param in
+	 * @param out
+	 */
+	private static void copy(File file, OutputStream out)
 	{
-		InputStream in;		
+		InputStream in;
 		byte[] buffer = new byte[1024];
 		try {
-			in = new FileInputStream(file);			     		  
+			in = new FileInputStream(file);
 			while (true)
 			{
-			  int readCount = in.read(buffer);
-			  if (readCount < 0) {
-			    break;
-			  }
-			  out.write(buffer, 0, readCount);
+				int readCount = in.read(buffer);
+				if (readCount < 0) {
+					break;
+				}
+				out.write(buffer, 0, readCount);
 			}
 			in.close();
 		} catch (Exception e) {

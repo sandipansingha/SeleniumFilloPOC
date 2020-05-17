@@ -14,11 +14,17 @@ public class YouTubePageObjects {
         PageFactory.initElements(driver, this);
     }
     @FindBy(xpath = "//button[contains(@title,'Play')]")
-    public static WebElement btnPlay;
+    public WebElement btnPlay;
+
+    @FindBy(xpath = "//button[contains(@title,'Pause')]")
+    public WebElement btnPause;
+
+    @FindBy(xpath = "//button[contains(@title,'Mute')]")
+    public WebElement btnMute;
 
     @FindBy(xpath = "//span[contains(@class,'ytp-time-current')]")
-    public static WebElement txtCurrentSeekTime;
+    public WebElement txtCurrentSeekTime;
 
     @FindBy(xpath = "//span[contains(@class,'ytp-time-duration')]")
-    public static WebElement txtTotalDurationTime;
+    public WebElement txtTotalDurationTime;
 }
