@@ -56,6 +56,7 @@ public class Util {
 				//setup the chromedriver using WebDriverManager
 				WebDriverManager.chromedriver().setup();
 				driver = new ChromeDriver();
+				driver.manage().deleteAllCookies();
 				driver.manage().window().maximize();
 				systemBrowserPath=prop.getProperty("browserPath");
 				break;
@@ -98,7 +99,8 @@ public class Util {
 		{
 			driver.close();
 			driver.quit();
-			ConnectionClass.con.close();
+			if(ConnectionClass.con!=null)
+				ConnectionClass.con.close();
 			test.log(LogStatus.INFO, "Resource Release", " - Resources released successfully");
 			extent.endTest(test);
 		}catch (Exception e1) {
