@@ -34,13 +34,11 @@ public class Util {
 	/**
 	 * @Description This method sets the WebDriver properties as per target Browser.
 	 * The [driverType] and [driverPath] are stored in the config.properties file.
-	 * @param driver is the webdriver object
 	 * @param prop is the property object
 	 * @return returns loaded driver object
 	 */
-	public static WebDriver setBrowser(WebDriver driver,Properties prop)
+	public static void setBrowser(Properties prop)
 	{
-
 		/*
 		 * This code sets the selenium webdriver with desired browser
 		 * properties.
@@ -49,20 +47,23 @@ public class Util {
 		driverType=DriverClass.browserFlag;
 		driverPath=prop.getProperty("driverPath");
 
+		DriverClass.driver=null;
 		switch(prop.getProperty("browserType").toLowerCase())
 		{
 			case "chrome":
 				System.setProperty("webdriver."+driverType+".driver",driverPath);
 				//setup the chromedriver using WebDriverManager
 				WebDriverManager.chromedriver().setup();
-				driver = new ChromeDriver();
-				driver.manage().deleteAllCookies();
-				driver.manage().window().maximize();
+				DriverClass.driver = new ChromeDriver();
+				DriverClass.driver.manage().deleteAllCookies();
+				DriverClass.driver.manage().window().maximize();
 				systemBrowserPath=prop.getProperty("browserPath");
 				break;
 			case "firefox":
-				driver= new FirefoxDriver();
-				driver.manage().window().maximize();
+				//setup the chromedriver using WebDriverManager
+				WebDriverManager.firefoxdriver().setup();
+				DriverClass.driver= new FirefoxDriver();
+				DriverClass.driver.manage().window().maximize();
 				systemBrowserPath=prop.getProperty("browserPath");
 				break;
 			case "ie":
@@ -74,18 +75,13 @@ public class Util {
 			case "safari":
 				//to be loaded if required
 				break;
-			default:
-				driver= new FirefoxDriver();
-				systemBrowserPath=prop.getProperty("browserPath");
-				break;
 		}
-		if(driver!=null)
+		if(DriverClass.driver!=null)
 			DriverClass.test.log(LogStatus.INFO, "Browser Launch", " - Browser selection and launch successfull");
 		else
 			DriverClass.test.log(LogStatus.ERROR, "Browser Launch", " - Browser launch failed");
 		//Initializing wait object with 10 seconds as parameter.
-		wait=new WebDriverWait(Objects.requireNonNull(driver), Integer.parseInt(prop.getProperty("customWait")));
-		return driver;
+		wait=new WebDriverWait(Objects.requireNonNull(DriverClass.driver), Integer.parseInt(prop.getProperty("customWait")));
 	}
 	/**
 	 * @Description This method closes the WebDriver and releases resources.
@@ -97,7 +93,8 @@ public class Util {
 		test=extent.startTest("<b>Test Closure</b>");
 		try
 		{
-			driver.close();
+			if(!DriverClass.browserWindowClosed)
+				driver.close();
 			driver.quit();
 			if(ConnectionClass.con!=null)
 				ConnectionClass.con.close();

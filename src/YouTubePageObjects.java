@@ -22,6 +22,9 @@ public class YouTubePageObjects {
     @FindBy(xpath = "//button[contains(@title,'Mute')]")
     public WebElement btnMute;
 
+    @FindBy(xpath = "//div[contains(@class,'video-container')]/video")
+    public WebElement videoArea;
+
     @FindBy(xpath = "//span[contains(@class,'ytp-time-current')]")
     public WebElement txtCurrentSeekTime;
 

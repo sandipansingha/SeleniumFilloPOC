@@ -2,6 +2,7 @@ import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
 
 import java.util.Properties;
 
@@ -22,7 +23,7 @@ public class Scenarios {
 		Recordset rs;
 		String appUrl = null;
 		String appName = null;
-		String pageValidationString;
+		String pageValidationString=null;
 		//Fetch the Application URL
 		try {
 			rs = ConnectionClass.filoDataConnect(prop, "AppData");
@@ -35,12 +36,15 @@ public class Scenarios {
 			test.log(LogStatus.ERROR, "Application URL", " - Unable to fetch App URL" + Util.textWrap(e1.toString(), "redbold"));
 		}
 		//Navigate to the Test URL using selected Browser
-		driver.navigate().to(appUrl);
-
+		try{
+			driver.get(appUrl);
+		}catch (Exception e){
+			driver.navigate().to(appUrl);
+		}
 		//Validate whether navigation is successfull
 		switch (appName) {
 			case "YouTube":
-				if (driver.getTitle().contains("YouTube")) {
+				if (driver.getTitle().contains(pageValidationString)) {
 					test.log(LogStatus.PASS, "Navigate", "Navigate to URL");
 					if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
 						test.log(LogStatus.INFO, "Home Screen",
@@ -48,7 +52,7 @@ public class Scenarios {
 										CaptureScreen(driver,
 												Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 				} else {
-					test.log(LogStatus.FAIL, "Search", "Search with a String");
+					test.log(LogStatus.FAIL, "Navigate", "Navigate to URL");
 					if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
 						test.log(LogStatus.INFO, "Home Screen",
 								test.addScreenCapture(ReportManager.
@@ -105,47 +109,75 @@ public class Scenarios {
 										Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 		}
 	}
-	public static void play(WebDriver driver, ExtentTest test, Properties prop, String screenFlag)
+	public static void play(WebDriver driver, ExtentTest test, Properties prop, String screenFlag) throws Exception
 	{
 		YouTubePageObjects ytp=new YouTubePageObjects(driver);
 		String currentSeekTime = null;
 		String totalDurationTime = null;
-		if(!Validation.isClickable(ytp.btnPause,driver))
-			if(Validation.isClickable(ytp.btnPlay,driver))
-				ytp.btnPlay.click();
-		if(Validation.isClickable(ytp.btnMute,driver))
-			ytp.btnMute.click();
-		do{
-			try {
-				if(ytp.txtCurrentSeekTime.isEnabled()) {
-					currentSeekTime = ytp.txtCurrentSeekTime.getText().trim();
-					totalDurationTime = ytp.txtTotalDurationTime.getText();
-					Thread.sleep(5000);
-					if(Integer.parseInt(currentSeekTime.split(":")[0])>=1) {
-						test.log(LogStatus.PASS, "Play", "Play video");
-						if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
-							test.log(LogStatus.INFO, "Home Screen",
-									test.addScreenCapture(ReportManager.
-											CaptureScreen(driver,
-													Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
-					break;
-					}
+		//Instantiate Action Class
+		Actions actions = new Actions(driver);
+		if(ytp.videoArea.isDisplayed()) {
+			if (!Validation.isClickable(ytp.btnPause, driver))
+				if (Validation.isClickable(ytp.btnPlay, driver))
+					ytp.btnPlay.click();
+				else {
+					//Mouse hover menuOption 'Music'
+					actions.moveToElement(ytp.videoArea).perform();
+					ytp.btnPlay.click();
 				}
-			} catch (Exception e) {
-				test.log(LogStatus.FAIL, "Play", "Play video");
-				if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
-					test.log(LogStatus.INFO, "Home Screen",
-							test.addScreenCapture(ReportManager.
-									CaptureScreen(driver,
-											Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
-				System.out.println(e.getMessage());
-				DriverClass.test.log(LogStatus.ERROR, "Scenario Execution",
-						"Play function failed due to:"+Util.textWrap(e.toString(),
-								"darkredbold")+
-								"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName()+
-								"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName());
+			if (Validation.isClickable(ytp.btnMute, driver))
+				ytp.btnMute.click();
+			else {
+				Thread.sleep(5000);
+				//Mouse hover menuOption 'Music'
+				actions.moveToElement(ytp.videoArea).perform();
+				ytp.btnMute.click();
 			}
+			do {
+				try {
+					if (ytp.txtCurrentSeekTime.isEnabled()) {
+						currentSeekTime = ytp.txtCurrentSeekTime.getText().trim();
+						totalDurationTime = ytp.txtTotalDurationTime.getText();
+						Thread.sleep(3000);
+						if (Integer.parseInt(currentSeekTime.split(":")[0]) >= 1) {
+							test.log(LogStatus.PASS, "Play", "Play video");
+							if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
+								test.log(LogStatus.INFO, "Home Screen",
+										test.addScreenCapture(ReportManager.
+												CaptureScreen(driver,
+														Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+							break;
+						}
+					}else {
+						//Mouse hover menuOption 'Music'
+						actions.moveToElement(ytp.videoArea).perform();
+						Thread.sleep(5000);
+						if (Integer.parseInt(currentSeekTime.split(":")[0]) >= 1) {
+							test.log(LogStatus.PASS, "Play", "Play video");
+							if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
+								test.log(LogStatus.INFO, "Home Screen",
+										test.addScreenCapture(ReportManager.
+												CaptureScreen(driver,
+														Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+							break;
+						}
+					}
+				} catch (Exception e) {
+					test.log(LogStatus.FAIL, "Play", "Play video");
+					if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
+						test.log(LogStatus.INFO, "Home Screen",
+								test.addScreenCapture(ReportManager.
+										CaptureScreen(driver,
+												Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+					System.out.println(e.getMessage());
+					DriverClass.test.log(LogStatus.ERROR, "Scenario Execution",
+							"Play function failed due to:" + Util.textWrap(e.toString(),
+									"darkredbold") +
+									"</br>&nbsp&nbspClass Name: " + Thread.currentThread().getStackTrace()[1].getClassName() +
+									"</br>&nbsp&nbspMethod Name: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+				}
+			}
+			while (!currentSeekTime.equals(totalDurationTime));
 		}
-		while(!currentSeekTime.equals(totalDurationTime));
 	}
 }

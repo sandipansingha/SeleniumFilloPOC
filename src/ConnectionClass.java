@@ -87,10 +87,14 @@ public class ConnectionClass {
 		 * ResultSet object rs storing the result of the executed
 		 * query in the DataSource.
 		 */
-		if(Sheetname.equalsIgnoreCase("Actions"))
-			rcs = filloCon.executeQuery("Select * from "+Sheetname+" where ExecuteFlag='yes'");
-		else if(Sheetname.equalsIgnoreCase("AppData"))
-			rcs = filloCon.executeQuery("Select * from "+Sheetname+" where TestName='"+prop.getProperty("releaseName")+"'");
+		String query;
+		if(Sheetname.equalsIgnoreCase("Actions")) {
+			query = "Select * from " + Sheetname + " where ExecuteFlag='yes'";
+			rcs = filloCon.executeQuery(query);
+		}else if(Sheetname.equalsIgnoreCase("AppData")) {
+			query="Select * from " + Sheetname + " where TestName='" + prop.getProperty("releaseName") + "'";
+			rcs = filloCon.executeQuery(query);
+		}
 		return rcs;
 	}
 	public static String getScenarioData(Properties prop, String queryFieldName, String keyFieldValue) throws Exception {
@@ -103,7 +107,10 @@ public class ConnectionClass {
 		 * ResultSet object rs storing the result of the executed
 		 * query in the DataSource.
 		 */
-		rcs = filloCon.executeQuery("Select "+queryFieldName+" from Actions where ScenarioName = '"+keyFieldValue+"'");
+		String query="Select "+queryFieldName+" from Actions where ScenarioName='"+keyFieldValue+"'";
+		rcs = filloCon.executeQuery(query);
+		rcs.moveNext();
+		data=rcs.getField(queryFieldName);
 		return data;
 	}
 
