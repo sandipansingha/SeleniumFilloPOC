@@ -101,7 +101,7 @@ public class DriverClass {
 		extent.endTest(test);
 		try {
 			boolean recordsetCursorResetFlag=false;
-			for(int i=1;i<=5;i++) {
+			for(int i=1;i<=iterationCount;i++) {
 				if(browserWindowClosed)
 					Util.setBrowser(configProperties);
 				while (rcs.next()) {
