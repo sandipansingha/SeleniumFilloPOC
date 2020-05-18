@@ -141,8 +141,9 @@ public class Util {
 			Runtime rTime = Runtime.getRuntime();
 			String url = ReportManager.RootPath + ReportManager.Path;
 			String browser = Util.systemBrowserPath+" ";
-			Process pc = rTime.exec(browser + url);
-			pc.waitFor();
+			rTime.exec(browser + url);
+			//Process pc = rTime.exec(browser + url);
+			//pc.waitFor();
 
 		} catch (Exception e)
 		{

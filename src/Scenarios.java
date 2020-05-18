@@ -151,7 +151,7 @@ public class Scenarios {
 					}else {
 						//Mouse hover menuOption 'Music'
 						actions.moveToElement(ytp.videoArea).perform();
-						Thread.sleep(5000);
+						Thread.sleep(3000);
 						if (Integer.parseInt(currentSeekTime.split(":")[0]) >= 1) {
 							test.log(LogStatus.PASS, "Play", "Play video");
 							if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
