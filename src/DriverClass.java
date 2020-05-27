@@ -1,6 +1,7 @@
 /**
  *
  */
+
 import com.codoid.products.exception.FilloException;
 import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentReports;
@@ -9,6 +10,7 @@ import com.relevantcodes.extentreports.LogStatus;
 import org.openqa.selenium.WebDriver;
 
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.util.Properties;
 
@@ -102,8 +104,6 @@ public class DriverClass {
 		try {
 			boolean recordsetCursorResetFlag=false;
 			for(int i=1;i<=iterationCount;i++) {
-				if(browserWindowClosed)
-					Util.setBrowser(configProperties);
 				while (rcs.next()) {
 					if(i>1&&recordsetCursorResetFlag) {
 						rcs.movePrevious();
@@ -111,39 +111,28 @@ public class DriverClass {
 					}
 					scenarioName = rcs.getField("ScenarioName");
 					screenFlag = rcs.getField("ScreenshotFlag");
-					switch (scenarioName) {
-						case "Navigate":
-							// [Scenario1]
-							// Navigate to URL and validate whether page has loaded
-							test = extent.startTest(scenarioName);
-							Scenarios.navigate(driver, test, configProperties, screenFlag);
-							extent.endTest(test);
-							break;
-						case "Search":
-							// [Scenario2]
-							// Search and check search results page
-							test = extent.startTest(scenarioName);
-							Scenarios.search(driver, test, configProperties, screenFlag);
-							extent.endTest(test);
-							break;
-						case "Play":
-							// [Scenario3]
-							// Play Youtube video till end condition
-							test = extent.startTest(scenarioName);
-							Scenarios.play(driver, test, configProperties, screenFlag);
-							extent.endTest(test);
-							driver.close();
-							browserWindowClosed=true;
-							break;
-					}
+					test = extent.startTest(scenarioName);
+					if(browserWindowClosed)
+						Util.setBrowser(configProperties);
+					for(Method method:Scenarios.class.getDeclaredMethods())
+                    {
+                        if(method.getName().equalsIgnoreCase(scenarioName))
+                            method.invoke(null,driver,test,configProperties,screenFlag);
+                    }
+					extent.endTest(test);
 				}
 				rcs.moveFirst();
 				recordsetCursorResetFlag=true;
 			}
 		} catch (Exception e1) {
+			String exceptionCause;
+			if(e1.getCause().toString().isEmpty()||e1.getCause().toString()==null)
+				exceptionCause=e1.toString();
+			else
+				exceptionCause=e1.getCause().toString();
 			test.log(LogStatus.ERROR, "Test Execution",
-					"Functional flow interrupted due to:"+Util.textWrap(e1.toString(),
-							"darkredbold")+
+					"Functional flow interrupted due to:"
+							+Util.textWrap(exceptionCause,"darkredbold")+
 							"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName().toString()+
 							"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName().toString());
 		}	finally {

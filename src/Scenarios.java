@@ -116,25 +116,27 @@ public class Scenarios {
 		String totalDurationTime = null;
 		//Instantiate Action Class
 		Actions actions = new Actions(driver);
-		if(ytp.videoArea.isDisplayed()) {
-			if (!Validation.isClickable(ytp.btnPause, driver))
-				if (Validation.isClickable(ytp.btnPlay, driver))
-					ytp.btnPlay.click();
+		try{
+			if(ytp.videoArea.isDisplayed()) {
+				if (!Validation.isClickable(ytp.btnPause, driver))
+					if (Validation.isClickable(ytp.btnPlay, driver))
+						ytp.btnPlay.click();
+					else {
+						//Mouse hover menuOption 'Music'
+						actions.moveToElement(ytp.videoArea).perform();
+						if (!Validation.isClickable(ytp.btnPause, driver))
+							if (Validation.isClickable(ytp.btnPlay, driver))
+								ytp.btnPlay.click();
+					}
+				if (Validation.isClickable(ytp.btnMute, driver))
+					ytp.btnMute.click();
 				else {
+					Thread.sleep(5000);
 					//Mouse hover menuOption 'Music'
 					actions.moveToElement(ytp.videoArea).perform();
-					ytp.btnPlay.click();
+					ytp.btnMute.click();
 				}
-			if (Validation.isClickable(ytp.btnMute, driver))
-				ytp.btnMute.click();
-			else {
-				Thread.sleep(5000);
-				//Mouse hover menuOption 'Music'
-				actions.moveToElement(ytp.videoArea).perform();
-				ytp.btnMute.click();
-			}
-			do {
-				try {
+				do {
 					if (ytp.txtCurrentSeekTime.isEnabled()) {
 						currentSeekTime = ytp.txtCurrentSeekTime.getText().trim();
 						totalDurationTime = ytp.txtTotalDurationTime.getText();
@@ -162,22 +164,25 @@ public class Scenarios {
 							break;
 						}
 					}
-				} catch (Exception e) {
-					test.log(LogStatus.FAIL, "Play", "Play video");
-					if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
-						test.log(LogStatus.INFO, "Home Screen",
-								test.addScreenCapture(ReportManager.
-										CaptureScreen(driver,
-												Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
-					System.out.println(e.getMessage());
-					DriverClass.test.log(LogStatus.ERROR, "Scenario Execution",
-							"Play function failed due to:" + Util.textWrap(e.toString(),
-									"darkredbold") +
-									"</br>&nbsp&nbspClass Name: " + Thread.currentThread().getStackTrace()[1].getClassName() +
-									"</br>&nbsp&nbspMethod Name: " + Thread.currentThread().getStackTrace()[1].getMethodName());
-				}
 			}
 			while (!currentSeekTime.equals(totalDurationTime));
 		}
+		} catch (Exception e)
+		{
+			test.log(LogStatus.FAIL, "Play", "Play video");
+			if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
+				test.log(LogStatus.INFO, "Home Screen",
+						test.addScreenCapture(ReportManager.
+								CaptureScreen(driver,
+										Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+			System.out.println(e.getMessage());
+			DriverClass.test.log(LogStatus.ERROR, "Scenario Execution",
+					"Play function failed due to:" + Util.textWrap(e.toString(),
+							"darkredbold") +
+							"</br>&nbsp&nbspClass Name: " + Thread.currentThread().getStackTrace()[1].getClassName() +
+							"</br>&nbsp&nbspMethod Name: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+		}
+		driver.close();
+		DriverClass.browserWindowClosed=true;
 	}
 }

@@ -76,9 +76,10 @@ public class Util {
 				//to be loaded if required
 				break;
 		}
-		if(DriverClass.driver!=null)
+		if(DriverClass.driver!=null) {
+			DriverClass.browserWindowClosed=false;
 			DriverClass.test.log(LogStatus.INFO, "Browser Launch", " - Browser selection and launch successfull");
-		else
+		} else
 			DriverClass.test.log(LogStatus.ERROR, "Browser Launch", " - Browser launch failed");
 		//Initializing wait object with 10 seconds as parameter.
 		wait=new WebDriverWait(Objects.requireNonNull(DriverClass.driver), Integer.parseInt(prop.getProperty("customWait")));
