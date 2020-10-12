@@ -1,3 +1,5 @@
+package AutomationFramework;
+
 import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -185,4 +187,6 @@ public class Scenarios {
 		driver.close();
 		DriverClass.browserWindowClosed=true;
 	}
+	public  void navigateToYMORegistrationPage(WebDriver driver, ExtentTest test, Properties prop, String screenFlag)
+	{}
 }

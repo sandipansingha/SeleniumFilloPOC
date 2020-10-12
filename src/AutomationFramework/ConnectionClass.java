@@ -1,4 +1,4 @@
-//import java.sql.Connection;
+package AutomationFramework;//import java.sql.Connection;
 import com.codoid.products.fillo.Connection;
 import com.codoid.products.fillo.Fillo;
 import com.codoid.products.fillo.Recordset;
@@ -70,7 +70,7 @@ public class ConnectionClass {
 	    }catch(Exception e)
 	    {
 	    	System.out.println(e);
-	    	test.log(LogStatus.FATAL, Util.textWrap(e.toString(),
+	    	test.log(LogStatus.FATAL, AutomationFramework.Util.textWrap(e.toString(),
     			"redbold")+
     			"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName().toString()+
     			"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName().toString());

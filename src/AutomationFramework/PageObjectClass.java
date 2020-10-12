@@ -1,4 +1,4 @@
-/**
+package AutomationFramework; /**
  * @Description This class contains the identification properties of all the page elements
  * @author sandipan.singha 
  * of the web application under test
