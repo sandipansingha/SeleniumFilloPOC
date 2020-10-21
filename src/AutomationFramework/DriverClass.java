@@ -124,7 +124,7 @@ public class DriverClass {
 						for(Method method: classObject.getDeclaredMethods())
 						{
 							if(method.getName().equalsIgnoreCase(scenarioName))
-								method.invoke(null,driver,test,configProperties,screenFlag);
+								method.invoke(classObject.newInstance(),driver,test,configProperties,screenFlag);
 						}
 					}
 					extent.endTest(test);
