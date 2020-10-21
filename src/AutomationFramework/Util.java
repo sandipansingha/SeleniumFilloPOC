@@ -1,3 +1,6 @@
+package AutomationFramework;
+
+import com.google.common.reflect.ClassPath;
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -10,10 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.*;
 import java.net.URI;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -249,5 +249,24 @@ public class Util {
 		} catch (Exception e) {
 			ReportManager.logger.info("\n"+e.toString()+"\n");
 		}
+	}
+	public static ArrayList<String> getClassNames(String packageName)
+	{
+		ArrayList<String> classNames=new ArrayList();
+		final ClassLoader loader = Thread.currentThread()
+				.getContextClassLoader();
+		try {
+
+			ClassPath classpath = ClassPath.from(loader); // scans the class path used by classloader
+			for (ClassPath.ClassInfo classInfo : classpath.getTopLevelClasses(packageName)) {
+				if(!classInfo.getSimpleName().endsWith("_")){
+					classNames.add(classInfo.getSimpleName());
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return classNames;
 	}
 }

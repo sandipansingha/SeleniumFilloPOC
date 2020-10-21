@@ -1,3 +1,5 @@
+package AutomationFramework;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -10,7 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  *
  */
 public class Validation {
-	
+
 //----------------Series of overload methods that only validate condition--------------------
 /*
  * @Description This method is the base method for general validation.

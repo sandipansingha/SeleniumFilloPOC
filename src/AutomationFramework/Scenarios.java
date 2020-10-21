@@ -1,3 +1,5 @@
+package AutomationFramework;
+
 import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -11,7 +13,8 @@ import java.util.Properties;
  * @author sandipan.singha
  * @Date 29.06.2016
  */
-public class Scenarios {
+public class Scenarios
+{
 	/**
 	 * @Description This method navigates to the desired URL
 	 * @param driver
@@ -19,7 +22,7 @@ public class Scenarios {
 	 * @param prop
 	 * @param screenFlag
 	 */
-	public static void navigate(WebDriver driver, ExtentTest test, Properties prop, String screenFlag) {
+	public void navigate(WebDriver driver, ExtentTest test, Properties prop, String screenFlag) {
 		Recordset rs;
 		String appUrl = null;
 		String appName = null;
@@ -60,8 +63,8 @@ public class Scenarios {
 												Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 				}
 				break;
-			case "ToBeAdded":
-				if (Validation.validate(PageObjectClass.btnSignIn(driver))) {
+			case "YMO":
+				if (driver.getTitle().equalsIgnoreCase("Your Meals Online")) {
 					test.log(LogStatus.PASS, "Navigate", "Navigate to URL");
 					if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
 						test.log(LogStatus.INFO, "Home Screen",
@@ -184,5 +187,46 @@ public class Scenarios {
 		}
 		driver.close();
 		DriverClass.browserWindowClosed=true;
+	}
+	public  void navigateToYMORegistrationPage(WebDriver driver, ExtentTest test, Properties prop, String screenFlag)
+	{
+		YMOHomePage ymoHP=new YMOHomePage(driver);
+		YMORegistrationPage ymoRP=new YMORegistrationPage(driver);
+		try {
+			ymoHP.dismissModalAlert();
+			ymoHP.navigateToRegistrationPage();
+			if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
+				test.log(LogStatus.INFO, "Home Screen",
+						test.addScreenCapture(ReportManager.
+								CaptureScreen(driver,
+										Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+		} catch (Exception e) {
+			test.log(LogStatus.ERROR, "YMO Home Page navigation",
+					" Exception on home page" + Util.textWrap(e.toString(),
+							"redbold"));
+		}
+
+		try {
+			ymoRP.navigateToRegistrationPage();
+			if (ymoRP.xpathLblRegistrationPageHeading.isDisplayed()) {
+				test.log(LogStatus.PASS, "Navigate", "Navigate to Customer Registration Page Step 1");
+				if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
+					test.log(LogStatus.INFO, "Customer Registration Page",
+							test.addScreenCapture(ReportManager.
+									CaptureScreen(driver,
+											Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+			} else {
+				test.log(LogStatus.FAIL, "Navigate", "Navigate to Customer Registration Page Step 1");
+				if (screenFlag.equalsIgnoreCase("fail") || screenFlag.equalsIgnoreCase("all"))
+					test.log(LogStatus.INFO, "Customer Registration Page",
+							test.addScreenCapture(ReportManager.
+									CaptureScreen(driver,
+											Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
+			}
+		} catch (Exception e) {
+			test.log(LogStatus.ERROR, "YMO Registration Page navigation",
+					" Exception on Registration Page" + Util.textWrap(e.toString(),
+							"redbold"));
+		}
 	}
 }

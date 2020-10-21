@@ -1,8 +1,5 @@
-/**
- *
- */
+package AutomationFramework;
 
-import com.codoid.products.exception.FilloException;
 import com.codoid.products.fillo.Recordset;
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
@@ -12,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Properties;
 
 
@@ -40,11 +38,14 @@ public class DriverClass {
 	public static boolean zipArchiveFlag;
 	public static String browserFlag;
 	public static int iterationCount;
+	public static Object obj;
+	public static java.lang.reflect.Method method;
+	public static ArrayList<String> classNameList;
 
 
 	/**
 	 * @Description This is the main method that calls drives the functional flow
-	 * @param args
+	 *
 	 */
 	public static void main(String[] args) throws Exception {
 
@@ -78,10 +79,10 @@ public class DriverClass {
 		}
 
 		//Fetch Test flow details from Test Data sheet below
-		rcs1=ConnectionClass.filoDataConnect(configProperties, "AppData");
+		rcs1= ConnectionClass.filoDataConnect(configProperties, "AppData");
 		rcs=ConnectionClass.filoDataConnect(configProperties, "Actions");
 		/*//Sets browser type based on browser choice provided by user in configuration properties
-		driver=Util.setBrowser(driver, prop);*/
+		driver=AutomationFramework.Util.setBrowser(driver, prop);*/
 
 
 
@@ -90,12 +91,14 @@ public class DriverClass {
 
 		try {
 			rcs1.next();
-			browserFlag=rcs1.getField("browser");
-			iterationCount=Integer.parseInt(rcs1.getField("Iteration").trim());
+			browserFlag = rcs1.getField("browser");
+			iterationCount=1;
+			if(!rcs1.getField("Iteration").trim().isEmpty())
+				iterationCount = Integer.parseInt(rcs1.getField("Iteration").trim());
 			//Sets browser type based on browser choice provided by user in configuration properties
 			Util.setBrowser(configProperties);
-			browserWindowClosed=false;
-		} catch (FilloException e) {
+			browserWindowClosed = false;
+		}catch (Exception e){
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -114,11 +117,16 @@ public class DriverClass {
 					test = extent.startTest(scenarioName);
 					if(browserWindowClosed)
 						Util.setBrowser(configProperties);
-					for(Method method:Scenarios.class.getDeclaredMethods())
-                    {
-                        if(method.getName().equalsIgnoreCase(scenarioName))
-                            method.invoke(null,driver,test,configProperties,screenFlag);
-                    }
+					classNameList= Util.getClassNames("AutomationFramework");
+					for(String className:classNameList)
+					{
+						Class<?> classObject=Class.forName("AutomationFramework."+className);
+						for(Method method: classObject.getDeclaredMethods())
+						{
+							if(method.getName().equalsIgnoreCase(scenarioName))
+								method.invoke(classObject.newInstance(),driver,test,configProperties,screenFlag);
+						}
+					}
 					extent.endTest(test);
 				}
 				rcs.moveFirst();
@@ -132,7 +140,7 @@ public class DriverClass {
 				exceptionCause=e1.getCause().toString();
 			test.log(LogStatus.ERROR, "Test Execution",
 					"Functional flow interrupted due to:"
-							+Util.textWrap(exceptionCause,"darkredbold")+
+							+ Util.textWrap(exceptionCause,"darkredbold")+
 							"</br>&nbsp&nbspClass Name: "+Thread.currentThread().getStackTrace()[1].getClassName().toString()+
 							"</br>&nbsp&nbspMethod Name: "+Thread.currentThread().getStackTrace()[1].getMethodName().toString());
 		}	finally {
@@ -143,7 +151,7 @@ public class DriverClass {
 			//Copy reports to archive path mentioned in config property "ReportArchive"
 			Util.archiveReport(configProperties);
 			//Create Report Zip Archive
-			zipArchiveFlag=Util.CreateZip(configProperties);
+			zipArchiveFlag= Util.CreateZip(configProperties);
 			//Send email with zip archive of report
 			if(zipArchiveFlag==true&& configProperties.getProperty("sendMail").equalsIgnoreCase("yes"))
 				mailSender.email(configProperties);

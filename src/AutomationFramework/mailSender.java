@@ -1,7 +1,8 @@
-import java.util.*;  
+package AutomationFramework;
+
+import java.util.*;
 import javax.mail.*;  
 import javax.mail.internet.*;
-import javax.net.ssl.SSLSession;
 import javax.activation.*;
 
 /**
