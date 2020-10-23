@@ -6,7 +6,10 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
+import org.json.simple.JSONObject;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -268,5 +271,17 @@ public class Util {
 		}
 
 		return classNames;
+	}
+	public static void jsonFileWriter(JSONObject jsonObject) throws Exception
+	{
+		FileWriter file = new FileWriter(ReportManager.RootPath
+				+ReportManager.testRunPath+"YMOAddressLocation.json");
+		file.write(jsonObject.toJSONString());
+		file.close();
+	}
+	public static void scrollToElement(WebElement ele)
+	{
+		JavascriptExecutor js = (JavascriptExecutor) DriverClass.driver;
+		js.executeScript("arguments[0].scrollIntoView();", ele);
 	}
 }

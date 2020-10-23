@@ -207,7 +207,7 @@ public class Scenarios
 		}
 
 		try {
-			ymoRP.navigateToRegistrationPage();
+			ymoRP.navigateToRegistrationPageStep1();
 			if (ymoRP.xpathLblRegistrationPageHeading.isDisplayed()) {
 				test.log(LogStatus.PASS, "Navigate", "Navigate to Customer Registration Page Step 1");
 				if (screenFlag.equalsIgnoreCase("pass") || screenFlag.equalsIgnoreCase("all"))
@@ -223,6 +223,7 @@ public class Scenarios
 									CaptureScreen(driver,
 											Thread.currentThread().getStackTrace()[1].getMethodName().toString())));
 			}
+			ymoRP.createLocationJSON();
 		} catch (Exception e) {
 			test.log(LogStatus.ERROR, "YMO Registration Page navigation",
 					" Exception on Registration Page" + Util.textWrap(e.toString(),
