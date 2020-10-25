@@ -51,6 +51,7 @@ public class YMORegistrationPage {
         JSONObject jsonParentObject = new JSONObject();
         JSONObject jsonChildObject=null;
         JSONArray jsonArray=null;
+        JSONArray parentJsonArray=null;
         ArrayList<String> catchmentArray;
         List<WebElement> primaryDdnOptions;
         List<WebElement> secondaryOptions;
@@ -61,39 +62,49 @@ public class YMORegistrationPage {
 
         Util.scrollToElement(xpathDdnPrimaryDropDown);
         primaryDdn = new Select(xpathDdnPrimaryDropDown);
-        for(int i=0;i<3;i++)
-        {
+        //for(int i=0;i<primaryDdn.getOptions().size();i++) {
+        for(int i=0;i<3;i++) {
             primaryDdn.selectByIndex(i);
-            if(!primaryDdn.getFirstSelectedOption().getText().contains("Please Select One"))
+            if (i < 3)
             {
-                Thread.sleep(1000);
-                if(primaryDdn.getFirstSelectedOption().getText().contains("London"))
-                    secondaryDdn=new Select(xpathDdnBoroughs);
-                else if(primaryDdn.getFirstSelectedOption().getText().contains("Top Cities"))
-                    secondaryDdn=new Select(xpathDdnTopCities);
-                jsonChildObject= new JSONObject();
-                for(int j=0;j<secondaryDdn.getOptions().size();j++)
+
+                if (!primaryDdn.getFirstSelectedOption().getText().contains("Please Select One"))
                 {
-                    secondaryDdn.selectByIndex(j);
-                    if(!secondaryDdn.getFirstSelectedOption().getText().contains("Please Select One"))
+                    Thread.sleep(1000);
+                    if (primaryDdn.getFirstSelectedOption().getText().contains("London"))
+                        secondaryDdn = new Select(xpathDdnBoroughs);
+                    else if (primaryDdn.getFirstSelectedOption().getText().contains("Top Cities"))
+                        secondaryDdn = new Select(xpathDdnTopCities);
+                    jsonChildObject = new JSONObject();
+                    //for (int j =0 ; j < secondaryDdn.getOptions().size(); j++)
+                    for (int j =0 ; j < 3; j++)
                     {
-                        Thread.sleep(1000);
-                        catchmentDdn=new Select(xpathDdnCatchments);
-                        jsonArray = new JSONArray();
-                        for(int k=0;k<catchmentDdn.getOptions().size();k++)
-                        {
-                            catchmentDdn.selectByIndex(k);
-                            jsonArray.add(catchmentDdn.getFirstSelectedOption().getText().trim());
+                        secondaryDdn.selectByIndex(j);
+                        if (!secondaryDdn.getFirstSelectedOption().getText().contains("Please Select One")
+                                && !secondaryDdn.getFirstSelectedOption().getText().contains("Select")) {
+                            Thread.sleep(1000);
+                            catchmentDdn = new Select(xpathDdnCatchments);
+                            jsonArray = new JSONArray();
+                            for (int k = 0; k < catchmentDdn.getOptions().size(); k++) {
+                                catchmentDdn.selectByIndex(k);
+                                jsonArray.add(catchmentDdn.getFirstSelectedOption().getText().trim());
+                            }
                         }
+                        jsonChildObject.put(secondaryDdn.getFirstSelectedOption().getText().trim(), jsonArray);
                     }
-                    jsonChildObject.put(secondaryDdn.getFirstSelectedOption().getText(), jsonArray);
                 }
             }
-            if(jsonChildObject==null)
-                jsonParentObject.put(primaryDdn.getFirstSelectedOption().getText(),"");
-            else
-                jsonParentObject.put(primaryDdn.getFirstSelectedOption().getText(),jsonChildObject);
+            else if(i==3)
+            {
+                jsonChildObject=new JSONObject();
+                jsonParentObject.put("County Names are below:", jsonChildObject);
+            }
+            if(i!=3)
+                jsonParentObject.put(primaryDdn.getFirstSelectedOption().getText().trim(), jsonChildObject);
+
         }
+
+        parentJsonArray.add(jsonParentObject.toJSONString());
         Util.jsonFileWriter(jsonParentObject);
 
     }
